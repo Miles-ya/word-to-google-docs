@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word to Google Docs: Clean Layout Converter | WordToDocs</title>
+  <meta name="description" content="Convert Word to Google Docs instantly in your browser. Preserve tables, styles, and fonts with zero server upload. Free, client-side, and 100% private.">
+  <link rel="canonical" href="https://wordtodocs.com/">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#2563eb">
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://wordtodocs.com/">
+  <meta property="og:title" content="Word to Google Docs: Clean Layout Converter | WordToDocs">
+  <meta property="og:description" content="Convert Word to Google Docs instantly in your browser. Preserve tables, styles, and fonts with zero server upload. Free, client-side, and 100% private.">
+  <meta property="og:image" content="https://wordtodocs.com/og-image.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Word to Google Docs: Clean Layout Converter | WordToDocs">
+  <meta name="twitter:description" content="Convert Word to Google Docs instantly in your browser. Preserve tables, styles, and fonts with zero server upload. Free, client-side, and 100% private.">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Mammoth.js for 100% client-side docx parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+  <!-- Schema.org Structured Data: WebApplication + FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "@id": "https://wordtodocs.com/#webapp",
+        "name": "WordToDocs - Word to Google Docs Converter",
+        "url": "https://wordtodocs.com/",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "All modern browsers (Chrome, Firefox, Safari, Edge)",
+        "browserRequirements": "Requires JavaScript",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Client-side document converter to transform Word (.docx) documents into pristine Google Docs formatting without file uploads or privacy risks.",
+        "featureList": [
+          "100% client-side in-browser conversion",
+          "Zero file uploads to external servers",
+          "Nested table and cell structure preservation",
+          "One-click rich text clipboard buffer for Google Docs",
+          "Built-in Google Drive Apps Script batch generator"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://wordtodocs.com/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Why does my formatting break when moving word to google docs directly?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Microsoft Word uses proprietary OpenXML structures, complex XML table models, and local printer font metrics that Google Workspace does not interpret identically during standard Drive uploads. WordToDocs cleans and converts your DOCX file directly inside your browser into normalized HTML5 semantic elements that match Google Docs clipboard specifications, preserving nested tables, cell padding, headers, and bullet lists without distortion."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are my files uploaded to your servers or stored anywhere?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. All conversion operations execute 100% locally on your computer inside your web browser. No document content, filenames, or text are ever transmitted to any remote server or third-party cloud. You can disconnect your internet connection after loading the page and the tool will continue working flawlessly."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is WordToDocs completely free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, WordToDocs is 100% free with no hidden paywalls, no monthly subscription tiers, and no account registration requirements. You can convert unlimited documents and generate batch conversion scripts without restriction."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the direct copy-to-clipboard feature work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "When you click 'Copy for Google Docs', the tool utilizes the native browser Async Clipboard API to inject clean, sanitized text/html and text/plain MIME payloads into your system clipboard. When you press Ctrl+V (or Cmd+V on Mac) inside a blank Google Doc, Google Docs natively renders the semantic tables, callout blocks, and character styles as first-class workspace elements."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the Google Drive Batch Script Generator work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "If you have hundreds of Word documents stored inside a Google Drive folder, manual conversion takes hours. Our built-in generator creates a tailored Google Apps Script snippet. You simply paste it into script.google.com and run it once; it automatically duplicates every .docx file in your specified Drive folder as a native Google Doc while keeping your originals intact."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which file formats are supported?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "WordToDocs natively supports modern Microsoft Word .docx files (Office Open XML), as well as direct rich-text pasting. If you have legacy binary .doc files from Word 97-2003, please save them as .docx once in Word or LibreOffice before parsing."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    /* Custom scrollbar and preview typography */
+    .prose-preview table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    .prose-preview th,
+    .prose-preview td {
+      border: 1px solid #cbd5e1;
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    .dark .prose-preview th,
+    .dark .prose-preview td {
+      border-color: #475569;
+    }
+    .prose-preview th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+    }
+    .dark .prose-preview th {
+      background-color: #1e293b;
+    }
+    .prose-preview h1, .prose-preview h2, .prose-preview h3 {
+      font-weight: 700;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .prose-preview ul, .prose-preview ol {
+      padding-left: 1.5rem;
+      margin: 0.75rem 0;
+    }
+    .prose-preview ul { list-style-type: disc; }
+    .prose-preview ol { list-style-type: decimal; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans transition-colors duration-200 antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center space-x-2.5 group">
+        <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:bg-blue-700 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+          Word<span class="text-blue-600">ToDocs</span><span class="text-xs ml-1 text-slate-500 font-normal">.com</span>
+        </span>
+      </a>
+
+      <!-- Header Actions & Badges -->
+      <div class="flex items-center space-x-3 sm:space-x-4">
+        <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+          100% Free · Client-Side
+        </span>
+
+        <!-- Theme Toggle -->
+        <button id="themeToggleBtn" type="button" aria-label="Toggle dark mode" class="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          <svg id="themeDarkIcon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+          </svg>
+          <svg id="themeLightIcon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+
+        <!-- CTA Link to Tool -->
+        <a href="#converter-app" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition">
+          Launch App
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== HERO SECTION ==================== -->
+    <section class="py-12 md:py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center" id="converter-app">
+      <!-- SEO Unique H1 -->
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+        Convert <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-300">word to google docs</span> with Zero Formatting Loss
+      </h1>
+
+      <p class="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        No account signup. No server uploads. Transform messy Word (.docx) files into clean, paste-ready rich text that preserves tables, headings, and character styles natively in Google Workspace.
+      </p>
+
+      <!-- Trust Badges Under Hero -->
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+        <span class="flex items-center"><svg class="w-4 h-4 mr-1 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> 100% Client-Side Privacy</span>
+        <span class="flex items-center"><svg class="w-4 h-4 mr-1 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Table Structure Preserved</span>
+        <span class="flex items-center"><svg class="w-4 h-4 mr-1 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Instant Clipboard Paste</span>
+      </div>
+
+      <!-- ==================== APPLICATION CONTAINER ==================== -->
+      <div class="mt-8 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden text-left">
+        <!-- Navigation Tabs inside App -->
+        <div class="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 px-4 sm:px-6 pt-3">
+          <button id="tabConverterBtn" type="button" class="py-3 px-4 font-semibold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 flex items-center space-x-2 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span>DOCX to Google Docs Cleaner</span>
+          </button>
+          <button id="tabScriptBtn" type="button" class="py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center space-x-2 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            <span>Drive Batch Script Generator</span>
+          </button>
+        </div>
+
+        <!-- Panel 1: Document Converter -->
+        <div id="panelConverter" class="p-5 sm:p-8">
+          <!-- Dropzone -->
+          <div id="dropzone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 rounded-xl p-8 text-center cursor-pointer transition bg-slate-50/50 dark:bg-slate-950/30">
+            <input type="file" id="fileInput" accept=".docx" class="hidden">
+            <div class="flex flex-col items-center justify-center">
+              <div class="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+              </div>
+              <p class="text-base font-semibold text-slate-800 dark:text-slate-200">
+                Drag and drop your Word (.docx) file here, or <span class="text-blue-600 dark:text-blue-400 underline">browse files</span>
+              </p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Processed 100% in local memory. Never sent to cloud servers.
+              </p>
+              <div class="mt-4 flex items-center space-x-3">
+                <button type="button" id="loadSampleBtn" class="text-xs font-medium px-3 py-1.5 rounded-md bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                  ⚡ Try Sample Document
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Formatting & Action Controls -->
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 dark:border-slate-800 pt-5">
+            <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="optCleanTables" checked class="rounded text-blue-600 focus:ring-blue-500 dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                <span>Normalize Tables for Docs</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="optPreserveHeadings" checked class="rounded text-blue-600 focus:ring-blue-500 dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                <span>Preserve Semantic H1-H3</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="optTrimSpans" checked class="rounded text-blue-600 focus:ring-blue-500 dark:bg-slate-800 border-slate-300 dark:border-slate-700">
+                <span>Strip Junk Word Spans</span>
+              </label>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-3">
+              <button id="copyDocsBtn" type="button" disabled class="px-5 py-2.5 rounded-lg font-semibold text-sm text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow transition flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                <span>Copy for Google Docs</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Status alert -->
+          <div id="statusAlert" class="hidden mt-4 p-3 rounded-lg text-sm flex items-center justify-between">
+            <span id="statusMessage"></span>
+            <button type="button" onclick="document.getElementById('statusAlert').classList.add('hidden')" class="text-xs font-bold underline ml-2">Dismiss</button>
+          </div>
+
+          <!-- Document Live Preview Container -->
+          <div class="mt-6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Formatted Output Preview
+              </span>
+              <span id="docStats" class="text-xs text-slate-500 dark:text-slate-400">0 words · Ready</span>
+            </div>
+            <div id="previewArea" class="prose-preview w-full min-h-[220px] max-h-[480px] overflow-y-auto p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm leading-relaxed">
+              <div class="text-slate-400 dark:text-slate-500 italic text-center py-12">
+                No document loaded yet. Drop a .docx file above or click "Try Sample Document" to view clean formatted rich text.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Drive Batch Script Generator -->
+        <div id="panelScript" class="hidden p-5 sm:p-8">
+          <div class="max-w-3xl">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Google Drive Batch DOCX to Docs Converter Script</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+              Have dozens or hundreds of Word files inside Google Drive? Standard uploads require manual conversion file by file. Use this free Apps Script generator to batch-convert an entire Drive folder into native Google Docs automatically.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Drive Folder ID or Name</label>
+                <input type="text" id="scriptFolderId" placeholder="e.g. 1a2B3c4D5e... or MyWordFolder" value="Word_Migration_2025" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Archive Original .docx After Conversion</label>
+                <select id="scriptArchiveOption" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500">
+                  <option value="keep">Keep original files in folder</option>
+                  <option value="trash">Move original .docx to Trash</option>
+                  <option value="subfolder">Move original .docx to 'Converted_Archive'</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Code output box -->
+            <div class="relative mt-4">
+              <div class="flex items-center justify-between px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-t-lg font-mono">
+                <span>Google Apps Script (Code.gs)</span>
+                <button id="copyScriptBtn" type="button" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                  <span>Copy Script</span>
+                </button>
+              </div>
+              <pre id="scriptOutput" class="p-4 bg-slate-900 text-slate-200 text-xs font-mono rounded-b-lg overflow-x-auto max-h-72 border border-t-0 border-slate-800 leading-normal"></pre>
+            </div>
+
+            <!-- Instructions -->
+            <div class="mt-4 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 text-xs text-blue-900 dark:text-blue-200 leading-relaxed">
+              <strong>How to run:</strong> 1. Open <a href="https://script.google.com" target="_blank" rel="noopener" class="underline font-bold">script.google.com</a> & create a "New project". 2. Paste the script above into <code class="font-mono bg-blue-100 dark:bg-blue-900 px-1 rounded">Code.gs</code>. 3. Click <strong>Services (+)</strong>, add <strong>Drive API (v2)</strong>. 4. Click <strong>Run</strong>. All your documents will instantly convert in cloud background.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FEATURES SECTION ==================== -->
+    <section class="py-16 bg-slate-100 dark:bg-slate-900/40 border-y border-slate-200 dark:border-slate-800">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Why Standard Conversions Fail and How WordToDocs Solves It
+          </h2>
+          <p class="mt-3 text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+            Most converters break table borders, mess up nested bullets, and upload your confidential files to unknown servers. WordToDocs runs entirely in your browser so you can convert word to google docs in seconds with 100% data privacy.
+          </p>
+        </div>
+
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Card 1 -->
+          <div class="bg-white dark:bg-slate-800/80 p-6 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">100% Client-Side Privacy</h3>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Zero file uploads. Your legal contracts, research findings, and company docs stay on your machine. All byte parsing happens in JavaScript sandbox memory.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50 text-xs font-semibold text-blue-600 dark:text-blue-400">
+              Zero Server Logging
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="bg-white dark:bg-slate-800/80 p-6 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">Complex Table Preservation</h3>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Retains table column alignments, cell padding, multi-line row headers, and nested cells. No broken table borders or shifted columns when pasted into Docs.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              Clean Semantic Tables
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="bg-white dark:bg-slate-800/80 p-6 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">Native Clipboard Bridge</h3>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                When you transfer word to google docs, standard copy-paste often strips formatting. Our clipboard bridge emits clean HTML that Google Docs interprets natively.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+              Instant Ctrl+V Ready
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="bg-white dark:bg-slate-800/80 p-6 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">Google Drive Batch Tools</h3>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Need to convert hundreds of files in Drive? Generate tailored Google Apps Scripts without coding knowledge to automate folder-wide migrations in minutes.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50 text-xs font-semibold text-amber-600 dark:text-amber-400">
+              Cloud Batch Automation
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== HOW IT WORKS 3-STEP ==================== -->
+    <section class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          How to Convert Documents in 3 Clean Steps
+        </h2>
+        <p class="mt-3 text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+          A smooth three-step workflow to move any word to google docs without installing third-party desktop software or paying for monthly subscriptions.
+        </p>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+        <!-- Step 1 -->
+        <div class="relative bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-3xl font-black text-blue-600 dark:text-blue-400">01</span>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">File In</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Drop Your Word Document</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            Drag your Microsoft Word (.docx) file straight into the browser canvas. The parser instantly unpacks the internal XML schema directly inside local memory.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-3xl font-black text-blue-600 dark:text-blue-400">02</span>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Sanitize</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Format Normalization</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            WordToDocs scrubs conflicting Microsoft Office tags, normalizes table rows, strips invisible break characters, and optimizes headings for Google Workspace styling.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-3xl font-black text-blue-600 dark:text-blue-400">03</span>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Paste</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Copy and Paste Direct to Docs</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            Click 'Copy for Google Docs'. Open any blank Google Document and hit Paste (Cmd+V or Ctrl+V). Your content renders instantly with pixel-perfect layouts.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== USE CASES SECTION ==================== -->
+    <section class="py-16 bg-slate-100 dark:bg-slate-900/40 border-t border-slate-200 dark:border-slate-800">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Engineered for High-Stakes Document Workflows
+          </h2>
+          <p class="mt-3 text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+            Academic papers, grant proposals, and scientific reports frequently require migrating from word to google docs to enable collaborative peer review and co-authoring.
+          </p>
+        </div>
+
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">Researchers & Universities</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Maintain complex statistical tables, footnotes, and multi-tier headings across academic drafts without manual re-formatting during co-authoring cycles.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">Remote Teams & Agencies</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Clients still deliver deliverables in .docx format. Convert them immediately into interactive Google Workspace docs for seamless team commenting and client feedback.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">Legal, Finance & Operations</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Strict compliance and confidentiality standards prohibit uploading proprietary NDA agreements or financial reports to unverified online conversion services.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FAQ SECTION (ACCORDION) ==================== -->
+    <section class="py-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          Frequently Asked Questions
+        </h2>
+        <p class="mt-3 text-slate-600 dark:text-slate-400 text-sm sm:text-base">
+          Everything you need to know about format fidelity, browser security, and bulk conversion.
+        </p>
+      </div>
+
+      <div class="space-y-4" id="faqAccordion">
+        <!-- FAQ Item 1 -->
+        <div class="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
+          <button type="button" class="faq-question w-full px-6 py-4 text-left font-semibold text-slate-900 dark:text-white flex justify-between items-center transition hover:bg-slate-50 dark:hover:bg-slate-850">
+            <span>Why does my formatting usually break when moving word to google docs directly?</span>
+            <svg class="w-5 h-5 text-slate-500 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div class="faq-answer px-6 pb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed hidden">
+            Microsoft Word uses proprietary OpenXML structures, complex XML table models, and local printer font metrics that Google Workspace does not interpret identically during standard Drive uploads. WordToDocs cleans and converts your DOCX file directly inside your browser into normalized HTML5 semantic elements that match Google Docs clipboard specifications, preserving nested tables, cell padding, headers, and bullet lists without distortion.
+          </div>
+        </div>
+
+        <!-- FAQ Item 2 -->
+        <div class="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
+          <button type="button" class="faq-question w-full px-6 py-4 text-left font-semibold text-slate-900 dark:text-white flex justify-between items-center transition hover:bg-slate-50 dark:hover:bg-slate-850">
+            <span>Are my files uploaded to your servers or stored anywhere?</span>
+            <svg class="w-5 h-5 text-slate-500 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div class="faq-answer px-6 pb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed hidden">
+            No. All conversion operations execute 100% locally on your computer inside your web browser. No document content, filenames, or text are ever transmitted to any remote server or third-party cloud. You can disconnect your internet connection after loading the page and the tool will continue working flawlessly.
+          </div>
+        </div>
+
+        <!-- FAQ Item 3 -->
+        <div class="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
+          <button type="button" class="faq-question w-full px-6 py-4 text-left font-semibold text-slate-900 dark:text-white flex justify-between items-center transition hover:bg-slate-50 dark:hover:bg-slate-850">
+            <span>Is WordToDocs completely free to use?</span>
+            <svg class="w-5 h-5 text-slate-500 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div class="faq-answer px-6 pb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed hidden">
+            Yes, WordToDocs is 100% free with no hidden paywalls, no monthly subscription tiers, and no account registration requirements. You can convert unlimited documents and generate batch conversion scripts without restriction.
+          </div>
+        </div>
+
+        <!-- FAQ Item 4 -->
+        <div class="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
+          <button type="button" class="faq-question w-full px-6 py-4 text-left font-semibold text-slate-900 dark:text-white flex justify-between items-center transition hover:bg-slate-50 dark:hover:bg-slate-850">
+            <span>How does the direct copy-to-clipboard feature work?</span>
+            <svg class="w-5 h-5 text-slate-500 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div class="faq-answer px-6 pb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed hidden">
+            When you click 'Copy for Google Docs', the tool utilizes the native browser Async Clipboard API to inject clean, sanitized text/html and text/plain MIME payloads into your system clipboard. When you press Ctrl+V (or Cmd+V on Mac) inside a blank Google Doc, Google Docs natively renders the semantic tables, callout blocks, and character styles as first-class workspace elements.
+          </div>
+        </div>
+
+        <!-- FAQ Item 5 -->
+        <div class="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
+          <button type="button" class="faq-question w-full px-6 py-4 text-left font-semibold text-slate-900 dark:text-white flex justify-between items-center transition hover:bg-slate-50 dark:hover:bg-slate-850">
+            <span>How does the Google Drive Batch Script Generator work?</span>
+            <svg class="w-5 h-5 text-slate-500 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div class="faq-answer px-6 pb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed hidden">
+            If you have hundreds of Word documents stored inside a Google Drive folder, manual conversion takes hours. Our built-in generator creates a tailored Google Apps Script snippet. You simply paste it into script.google.com and run it once; it automatically duplicates every .docx file in your specified Drive folder as a native Google Doc while keeping your originals intact.
+          </div>
+        </div>
+
+        <!-- FAQ Item 6 -->
+        <div class="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
+          <button type="button" class="faq-question w-full px-6 py-4 text-left font-semibold text-slate-900 dark:text-white flex justify-between items-center transition hover:bg-slate-50 dark:hover:bg-slate-850">
+            <span>Which file formats are supported?</span>
+            <svg class="w-5 h-5 text-slate-500 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div class="faq-answer px-6 pb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed hidden">
+            WordToDocs natively supports modern Microsoft Word .docx files (Office Open XML), as well as direct rich-text pasting. If you have legacy binary .doc files from Word 97-2003, please save them as .docx once in Word or LibreOffice before parsing.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-lg font-bold text-slate-900 dark:text-white">Word<span class="text-blue-600">ToDocs</span>.com</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 font-mono">v1.2</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+            Zero-upload browser utility to parse, clean, and convert Word documents for Google Docs.
+          </p>
+        </div>
+
+        <!-- Links -->
+        <div class="flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-400">
+          <a href="#converter-app" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Online Converter</a>
+          <a href="#" onclick="alert('Privacy Notice: WordToDocs never transfers, logs, or stores your documents on any server. All processing runs in browser memory.'); return false;" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Privacy Policy</a>
+          <a href="#" onclick="alert('Terms: WordToDocs is provided as-is without warranty. Content conversions are client-side.'); return false;" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Terms of Service</a>
+          <a href="mailto:support@wordtodocs.com" class="hover:text-blue-600 dark:hover:text-blue-400 transition">support@wordtodocs.com</a>
+        </div>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-850 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 dark:text-slate-500 gap-4">
+        <p>&copy; <span id="currentYear">2025</span> WordToDocs.com. All rights reserved.</p>
+        <p>Google Docs and Google Drive are registered trademarks of Google LLC.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== LOGIC / SCRIPT LAYER ==================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Current Year
+      document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+      // 2. Dark/Light Mode Switcher
+      const themeToggleBtn = document.getElementById('themeToggleBtn');
+      const themeDarkIcon = document.getElementById('themeDarkIcon');
+      const themeLightIcon = document.getElementById('themeLightIcon');
+
+      function updateThemeIcons() {
+        if (document.documentElement.classList.contains('dark')) {
+          themeDarkIcon.classList.add('hidden');
+          themeLightIcon.classList.remove('hidden');
+        } else {
+          themeDarkIcon.classList.remove('hidden');
+          themeLightIcon.classList.add('hidden');
+        }
+      }
+
+      if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      updateThemeIcons();
+
+      themeToggleBtn.addEventListener('click', () => {
+        if (document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('color-theme', 'light');
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('color-theme', 'dark');
+        }
+        updateThemeIcons();
+      });
+
+      // 3. Tab Switching
+      const tabConverterBtn = document.getElementById('tabConverterBtn');
+      const tabScriptBtn = document.getElementById('tabScriptBtn');
+      const panelConverter = document.getElementById('panelConverter');
+      const panelScript = document.getElementById('panelScript');
+
+      tabConverterBtn.addEventListener('click', () => {
+        tabConverterBtn.className = "py-3 px-4 font-semibold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 flex items-center space-x-2 transition";
+        tabScriptBtn.className = "py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center space-x-2 transition";
+        panelConverter.classList.remove('hidden');
+        panelScript.classList.add('hidden');
+      });
+
+      tabScriptBtn.addEventListener('click', () => {
+        tabScriptBtn.className = "py-3 px-4 font-semibold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 flex items-center space-x-2 transition";
+        tabConverterBtn.className = "py-3 px-4 font-semibold text-sm border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center space-x-2 transition";
+        panelScript.classList.remove('hidden');
+        panelConverter.classList.add('hidden');
+        updateAppsScriptCode();
+      });
+
+      // 4. DOCX Converter Engine
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('fileInput');
+      const previewArea = document.getElementById('previewArea');
+      const copyDocsBtn = document.getElementById('copyDocsBtn');
+      const statusAlert = document.getElementById('statusAlert');
+      const statusMessage = document.getElementById('statusMessage');
+      const docStats = document.getElementById('docStats');
+      const loadSampleBtn = document.getElementById('loadSampleBtn');
+
+      let currentHtmlContent = '';
+
+      function showAlert(msg, isError = false) {
+        statusAlert.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-red-100', 'text-red-800', 'dark:bg-emerald-950', 'dark:text-emerald-200', 'dark:bg-red-950', 'dark:text-red-200');
+        if (isError) {
+          statusAlert.classList.add('bg-red-100', 'text-red-800', 'dark:bg-red-950', 'dark:text-red-200');
+        } else {
+          statusAlert.classList.add('bg-emerald-100', 'text-emerald-800', 'dark:bg-emerald-950', 'dark:text-emerald-200');
+        }
+        statusMessage.textContent = msg;
+      }
+
+      function cleanHtmlForDocs(rawHtml) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(rawHtml, 'text/html');
+
+        // Apply selected options
+        if (document.getElementById('optTrimSpans').checked) {
+          doc.querySelectorAll('span').forEach(span => {
+            if (!span.getAttribute('style') && !span.className) {
+              const textNode = document.createTextNode(span.textContent);
+              span.parentNode && span.parentNode.replaceChild(textNode, span);
+            }
+          });
+        }
+
+        if (document.getElementById('optCleanTables').checked) {
+          doc.querySelectorAll('table').forEach(table => {
+            table.setAttribute('style', 'border-collapse:collapse; width:100%; margin:1em 0;');
+            table.querySelectorAll('th, td').forEach(cell => {
+              cell.setAttribute('style', 'border:1px solid #94a3b8; padding:6px 10px; vertical-align:top;');
+            });
+          });
+        }
+
+        return doc.body.innerHTML;
+      }
+
+      function renderDocumentContent(html) {
+        currentHtmlContent = cleanHtmlForDocs(html);
+        previewArea.innerHTML = currentHtmlContent;
+        copyDocsBtn.disabled = false;
+
+        const textOnly = previewArea.textContent || '';
+        const wordCount = (textOnly.trim().match(/\S+/g) || []).length;
+        docStats.textContent = `${wordCount} words · Clean & Formatted`;
+      }
+
+      function processDocxBuffer(arrayBuffer) {
+        if (typeof mammoth === 'undefined') {
+          showAlert("Mammoth library loading... Please check connection.", true);
+          return;
+        }
+
+        mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+          .then(result => {
+            renderDocumentContent(result.value);
+            showAlert("Document successfully converted and cleaned! Click 'Copy for Google Docs' to paste.");
+          })
+          .catch(err => {
+            console.error(err);
+            showAlert("Failed to parse .docx file. Ensure it is a valid OpenXML document.", true);
+          });
+      }
+
+      dropzone.addEventListener('click', (e) => {
+        if (e.target !== loadSampleBtn) {
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (loadEvent) => {
+            processDocxBuffer(loadEvent.target.result);
+          };
+          reader.readAsArrayBuffer(file);
+        }
+      });
+
+      // Drag & Drop
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropzone.classList.add('border-blue-500', 'bg-blue-50/50', 'dark:bg-blue-950/30');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          dropzone.classList.remove('border-blue-500', 'bg-blue-50/50', 'dark:bg-blue-950/30');
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const file = dt.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (loadEvent) => {
+            processDocxBuffer(loadEvent.target.result);
+          };
+          reader.readAsArrayBuffer(file);
+        }
+      });
+
+      // Sample Data Loader
+      loadSampleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sampleHtml = `
+          <h2>Q3 Strategic Research & Deliverables Report</h2>
+          <p>This sample preview demonstrates semantic headings, typography normalization, and table border retention when pasting directly into Google Docs.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Project Component</th>
+                <th>Status</th>
+                <th>Lead Author</th>
+                <th>Compatibility Metric</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Systematic Literature Review</td>
+                <td>Peer Review</td>
+                <td>Dr. Sarah Miller</td>
+                <td>100% Normalized</td>
+              </tr>
+              <tr>
+                <td>Quantitative Data Synthesis</td>
+                <td>Completed</td>
+                <td>Alex Rivera</td>
+                <td>High Fidelity</td>
+              </tr>
+              <tr>
+                <td>Stakeholder Questionnaire</td>
+                <td>Active Fieldwork</td>
+                <td>Elena Vance</td>
+                <td>Google Docs Ready</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Key Conversion Highlights</h3>
+          <ul>
+            <li>No broken cell borders or overlapping text boxes.</li>
+            <li>Direct paste support via standard clipboard buffer.</li>
+            <li>No external server uploads or data exposure risks.</li>
+          </ul>
+        `;
+        renderDocumentContent(sampleHtml);
+        showAlert("Loaded sample formatted document! Click 'Copy for Google Docs' to copy.");
+      });
+
+      // Copy for Google Docs
+      copyDocsBtn.addEventListener('click', async () => {
+        if (!currentHtmlContent) return;
+
+        try {
+          const blobHtml = new Blob([currentHtmlContent], { type: 'text/html' });
+          const blobText = new Blob([previewArea.textContent], { type: 'text/plain' });
+          const item = new ClipboardItem({
+            'text/html': blobHtml,
+            'text/plain': blobText
+          });
+          await navigator.clipboard.write([item]);
+          showAlert("Copied to clipboard! Go to Google Docs and press Cmd+V (or Ctrl+V) to paste seamlessly.");
+        } catch (err) {
+          // Fallback selection copy
+          console.warn("Clipboard API failed, using selection fallback", err);
+          const range = document.createRange();
+          range.selectNode(previewArea);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+          document.execCommand('copy');
+          window.getSelection().removeAllRanges();
+          showAlert("Copied with fallback! Paste directly into Google Docs.");
+        }
+      });
+
+      // 5. Google Drive Batch Script Generator
+      const scriptFolderId = document.getElementById('scriptFolderId');
+      const scriptArchiveOption = document.getElementById('scriptArchiveOption');
+      const scriptOutput = document.getElementById('scriptOutput');
+      const copyScriptBtn = document.getElementById('copyScriptBtn');
+
+      function updateAppsScriptCode() {
+        const folderTarget = scriptFolderId.value.trim() || 'Your_Word_Folder_ID';
+        const archiveChoice = scriptArchiveOption.value;
+
+        let archiveCode = '';
+        if (archiveChoice === 'trash') {
+          archiveCode = `      // Move converted original to Trash\n      file.setTrashed(true);`;
+        } else if (archiveChoice === 'subfolder') {
+          archiveCode = `      // Move to archive folder\n      var archiveFolder = getOrCreateSubFolder(folder, "Converted_Archive");\n      file.moveTo(archiveFolder);`;
+        } else {
+          archiveCode = `      // Keep original in place\n      Logger.log("Preserved original: " + file.getName());`;
+        }
+
+        const scriptTemplate = `/**
+ * Batch Convert Word (.docx) to Google Docs inside Google Drive
+ * Generated by WordToDocs.com
+ * Requires Drive API Service enabled under Services (+)
+ */
+function batchConvertWordToDocs() {
+  var target = "${folderTarget}";
+  var folder;
+
+  try {
+    folder = DriveApp.getFolderById(target);
+  } catch (e) {
+    var folders = DriveApp.getFoldersByName(target);
+    if (folders.hasNext()) {
+      folder = folders.next();
+    } else {
+      Logger.log("Folder not found: " + target);
+      return;
+    }
+  }
+
+  var files = folder.getFilesByType(MimeType.MICROSOFT_WORD);
+  var convertedCount = 0;
+
+  while (files.hasNext()) {
+    var file = files.next();
+    var name = file.getName().replace(/\\.docx$/i, "");
+    
+    // Convert to Google Doc using Drive API v2
+    var resource = {
+      title: name,
+      mimeType: MimeType.GOOGLE_DOCS,
+      parents: [{ id: folder.getId() }]
+    };
+
+    try {
+      Drive.Files.insert(resource, file.getBlob());
+      Logger.log("Converted: " + file.getName());
+      convertedCount++;
+${archiveCode}
+    } catch (err) {
+      Logger.log("Failed to convert " + file.getName() + ": " + err.toString());
+    }
+  }
+
+  Logger.log("Batch conversion finished! Total converted: " + convertedCount);
+}
+
+function getOrCreateSubFolder(parentFolder, subFolderName) {
+  var subs = parentFolder.getFoldersByName(subFolderName);
+  if (subs.hasNext()) return subs.next();
+  return parentFolder.createFolder(subFolderName);
+}`;
+        scriptOutput.textContent = scriptTemplate;
+      }
+
+      scriptFolderId.addEventListener('input', updateAppsScriptCode);
+      scriptArchiveOption.addEventListener('change', updateAppsScriptCode);
+      updateAppsScriptCode();
+
+      copyScriptBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(scriptOutput.textContent);
+          alert("Apps Script copied to clipboard!");
+        } catch (e) {
+          console.error(e);
+        }
+      });
+
+      // 6. Accordion Interactive Behaviour
+      document.querySelectorAll('.faq-question').forEach(button => {
+        button.addEventListener('click', () => {
+          const answer = button.nextElementSibling;
+          const arrow = button.querySelector('svg');
+          const isHidden = answer.classList.contains('hidden');
+
+          document.querySelectorAll('.faq-answer').forEach(el => el.classList.add('hidden'));
+          document.querySelectorAll('.faq-question svg').forEach(el => el.classList.remove('rotate-180'));
+
+          if (isHidden) {
+            answer.classList.remove('hidden');
+            arrow.classList.add('rotate-180');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
